@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import { Button } from "@/components/ui/Button";
+import { DashboardLink } from "@/components/DashboardLink";
 
 const steps = [
   { id: "story", label: "1. ストーリー" },
   { id: "image", label: "2. 画像" },
   { id: "propositions", label: "3. 日本語命題" },
-  { id: "aps", label: "4. APS" }
+  { id: "aps", label: "4. APS" },
 ];
 
 export function StepNav({ sessionId }: { sessionId: string }) {
@@ -16,7 +18,7 @@ export function StepNav({ sessionId }: { sessionId: string }) {
   const current = steps.find((step) => pathname?.endsWith(`/${step.id}`));
 
   return (
-    <nav className="mb-4 flex flex-wrap items-center gap-2 text-xs">
+    <nav className="mb-6 flex flex-wrap items-center gap-2 text-sm">
       {steps.map((step, index) => {
         const href = `/sessions/${sessionId}/${step.id}`;
         const isActive = current?.id === step.id;
@@ -25,15 +27,12 @@ export function StepNav({ sessionId }: { sessionId: string }) {
             key={step.id}
             href={href}
             className={clsx(
-              "rounded-full border px-3 py-1",
+              "rounded-full border px-4 py-1.5 transition-colors font-medium",
               isActive
-                ? "border-sky-400 bg-sky-500 text-slate-950"
-                : "border-slate-700 bg-slate-900 text-slate-200 hover:border-sky-400"
+                ? "border-primary bg-primary text-white shadow-md"
+                : "border-slate-200 bg-white text-text-sub hover:border-primary/50 hover:text-primary"
             )}
           >
-            <span className="mr-1 text-[10px] text-slate-300">
-              {index + 1}
-            </span>
             {step.label}
           </Link>
         );
@@ -44,7 +43,7 @@ export function StepNav({ sessionId }: { sessionId: string }) {
 
 export function PrevNextNav({
   sessionId,
-  current
+  current,
 }: {
   sessionId: string;
   current: "story" | "image" | "propositions" | "aps";
@@ -54,23 +53,22 @@ export function PrevNextNav({
   const next = currentIndex < steps.length - 1 ? steps[currentIndex + 1] : null;
 
   return (
-    <div className="mt-4 flex justify-between text-xs">
-      {prev ? (
-        <Link
-          href={`/sessions/${sessionId}/${prev.id}`}
-          className="rounded-full border border-slate-600 px-3 py-1 text-slate-200 hover:border-sky-400"
-        >
-          ← {prev.label}
-        </Link>
-      ) : (
-        <span />
-      )}
+    <div className="mt-8 flex justify-between items-center border-t border-slate-100 pt-6">
+      <div className="flex gap-2">
+        <DashboardLink />
+        {prev ? (
+          <Link href={`/sessions/${sessionId}/${prev.id}`}>
+            <Button variant="outline" size="sm">
+              ← {prev.label}
+            </Button>
+          </Link>
+        ) : null}
+      </div>
       {next ? (
-        <Link
-          href={`/sessions/${sessionId}/${next.id}`}
-          className="rounded-full border border-sky-400 bg-sky-500 px-3 py-1 text-slate-950 hover:bg-sky-400"
-        >
-          {next.label} →
+        <Link href={`/sessions/${sessionId}/${next.id}`}>
+          <Button variant="primary" size="sm">
+            {next.label} →
+          </Button>
         </Link>
       ) : (
         <span />
@@ -78,5 +76,3 @@ export function PrevNextNav({
     </div>
   );
 }
-
-

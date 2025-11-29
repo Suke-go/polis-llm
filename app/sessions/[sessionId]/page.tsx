@@ -1,5 +1,5 @@
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import SessionWizardClient from "./SessionWizardClient";
 import { notFound } from "next/navigation";
 
 interface Props {
@@ -10,32 +10,15 @@ export const dynamic = "force-dynamic";
 
 export default async function SessionPage({ params }: Props) {
   const session = await prisma.session.findUnique({
-    where: { id: params.sessionId },
-    include: {
-      stories: true,
-      propositions: {
-        orderBy: { id: "asc" }
-      }
-    }
+    where: { id: params.sessionId }
   });
 
   if (!session) {
     notFound();
   }
 
-  const story = session.stories[0] ?? null;
-
-  return (
-    <SessionWizardClient
-      session={{
-        id: session.id,
-        title: session.title,
-        prompt: session.prompt
-      }}
-      story={story}
-      propositions={session.propositions}
-    />
-  );
+  // 最初の工程（ストーリー）にリダイレクト
+  redirect(`/sessions/${params.sessionId}/story`);
 }
 
 

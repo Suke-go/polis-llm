@@ -33,7 +33,19 @@ export async function POST(req: NextRequest) {
   });
 
   // 2. Gemma-APS に投入して命題分割
-  const apsResult = await callGemmaAps(enText);
+  let apsResult;
+  try {
+    apsResult = await callGemmaAps(enText);
+  } catch (error) {
+    console.error("APS error:", error);
+    // エラー時もフォールバック処理で続行
+    apsResult = {
+      propositions: enText
+        .split(/[.!?]+\s+/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+    };
+  }
 
   if (!apsResult.propositions.length) {
     return new Response(

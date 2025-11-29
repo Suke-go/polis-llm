@@ -20,17 +20,32 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { imageUrl } = await generateStoryImage(story.policy_story_ja);
+  try {
+    const { imageUrl } = await generateStoryImage(story.policy_story_ja);
 
-  const updated = await prisma.story.update({
-    where: { sessionId: body.sessionId },
-    data: {
-      image_url: imageUrl,
-      status_image_generated: true
-    }
-  });
+    const updated = await prisma.story.update({
+      where: { sessionId: body.sessionId },
+      data: {
+        image_url: imageUrl,
+        status_image_generated: true
+      }
+    });
 
-  return Response.json({ story: updated });
+    return Response.json({ story: updated });
+  } catch (error) {
+    console.error("Image generation error:", error);
+    // Even on error, save a placeholder so the UI can show something
+    const placeholderUrl =
+      "https://via.placeholder.com/800x450.png?text=Image+Generation+Error";
+    const updated = await prisma.story.update({
+      where: { sessionId: body.sessionId },
+      data: {
+        image_url: placeholderUrl,
+        status_image_generated: true
+      }
+    });
+    return Response.json({ story: updated });
+  }
 }
 
 

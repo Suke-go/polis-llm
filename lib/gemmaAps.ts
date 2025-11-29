@@ -78,39 +78,62 @@ export async function callGemmaAps(
 
   const inputs = createPropositionsInput(concatenatedEnglishText);
 
-  const res = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${hfToken}`
-    },
-    body: JSON.stringify({
-      inputs,
-      parameters: {
-        max_new_tokens: 2048,
-        return_full_text: false,
-        do_sample: false
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${hfToken}`
+      },
+      body: JSON.stringify({
+        inputs,
+        parameters: {
+          max_new_tokens: 2048,
+          return_full_text: false,
+          do_sample: false
+        }
+      })
+    });
+
+    if (!res.ok) {
+      // 410 Gone や 503 Service Unavailable など、モデルが利用できない場合はフォールバック
+      if (res.status === 410 || res.status === 503) {
+        console.warn(
+          `Gemma-APS HF model unavailable (${res.status}), using fallback`
+        );
+        const propositions = concatenatedEnglishText
+          .split(/[.!?]+\s+/)
+          .map((s) => s.trim())
+          .filter(Boolean);
+        return { propositions };
       }
-    })
-  });
+      throw new Error(
+        `Gemma-APS HF error: ${res.status} ${res.statusText}`
+      );
+    }
 
-  if (!res.ok) {
-    throw new Error(`Gemma-APS HF error: ${res.status} ${res.statusText}`);
+    const json = (await res.json()) as any;
+    const generatedText: string | undefined =
+      Array.isArray(json) && json[0]?.generated_text
+        ? json[0].generated_text
+        : undefined;
+
+    if (!generatedText) {
+      throw new Error("Gemma-APS HF: empty generated_text");
+    }
+
+    const grouped = processPropositionsOutput(generatedText);
+    const flat = grouped.flat().map((s) => s.trim()).filter(Boolean);
+
+    return { propositions: flat };
+  } catch (error) {
+    // ネットワークエラーやその他の例外時もフォールバック
+    console.error("Gemma-APS HF error, using fallback:", error);
+    const propositions = concatenatedEnglishText
+      .split(/[.!?]+\s+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    return { propositions };
   }
-
-  const json = (await res.json()) as any;
-  const generatedText: string | undefined =
-    Array.isArray(json) && json[0]?.generated_text
-      ? json[0].generated_text
-      : undefined;
-
-  if (!generatedText) {
-    throw new Error("Gemma-APS HF: empty generated_text");
-  }
-
-  const grouped = processPropositionsOutput(generatedText);
-  const flat = grouped.flat().map((s) => s.trim()).filter(Boolean);
-
-  return { propositions: flat };
 }
 

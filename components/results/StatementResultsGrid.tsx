@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { Card } from "@/components/ui/Card";
 
 export type StatementResult = {
   statementId: string;
@@ -64,7 +65,7 @@ export function StatementResultsGrid({ sessionId }: Props) {
 
   if (isLoading && !results) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-gray-500">
+      <div className="flex h-full items-center justify-center text-sm text-text-muted">
         集計中です…
       </div>
     );
@@ -80,24 +81,24 @@ export function StatementResultsGrid({ sessionId }: Props) {
 
   if (!results || results.length === 0) {
     return (
-      <div className="text-sm text-gray-500">
+      <div className="text-sm text-text-muted">
         まだこのセッションの投票結果がありません。投票が集まるとここに表示されます。
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
       {results.map((item) => (
-        <article
+        <Card
           key={item.statementId}
-          className="flex flex-col rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+          className="flex flex-col"
         >
-          <h3 className="mb-3 text-sm font-medium text-gray-900">
+          <h3 className="mb-4 text-sm font-medium text-text-main leading-relaxed">
             {item.textJa}
           </h3>
 
-          <div className="mb-2 flex items-center justify-between text-xs text-gray-600">
+          <div className="mb-3 flex items-center justify-between text-xs font-bold text-text-sub">
             <span>賛成 / 反対 / Pass</span>
             <span>
               {(item.agreeRate * 100).toFixed(0)}% /{' '}
@@ -106,30 +107,28 @@ export function StatementResultsGrid({ sessionId }: Props) {
             </span>
           </div>
 
-          <div className="mb-1 h-2 w-full overflow-hidden rounded-full bg-gray-100">
+          <div className="mb-2 h-2.5 w-full overflow-hidden rounded-full bg-slate-100 flex">
             <div
-              className="float-left h-full bg-emerald-500"
+              className="h-full bg-emerald-500"
               style={{ width: `${item.agreeRate * 100}%` }}
             />
             <div
-              className="float-left h-full bg-rose-500"
+              className="h-full bg-rose-500"
               style={{ width: `${item.disagreeRate * 100}%` }}
             />
             <div
-              className="float-left h-full bg-slate-400"
+              className="h-full bg-slate-400"
               style={{ width: `${item.passRate * 100}%` }}
             />
           </div>
 
-          <div className="mt-1 flex justify-between text-[11px] text-gray-500">
-            <span>賛成</span>
-            <span>反対</span>
-            <span>Pass</span>
+          <div className="flex justify-between text-[10px] text-text-muted font-medium">
+            <span className="text-emerald-600">賛成</span>
+            <span className="text-rose-600">反対</span>
+            <span className="text-slate-500">Pass</span>
           </div>
-        </article>
+        </Card>
       ))}
     </div>
   );
 }
-
-
