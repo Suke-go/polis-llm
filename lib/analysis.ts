@@ -102,9 +102,12 @@ export async function runSimpleVoteAnalysis(
     passRate: s.passRate,
   }));
 
+  // Convert to JSON string for JSONB insertion
+  const resultsJsonString = JSON.stringify(resultsJson);
+
   await sql`
     INSERT INTO analysis_results (session_id, results_json)
-    VALUES (${sessionId}, ${resultsJson}::jsonb)
+    VALUES (${sessionId}, ${resultsJsonString}::jsonb)
     ON CONFLICT (session_id)
     DO UPDATE SET
       results_json = EXCLUDED.results_json,
