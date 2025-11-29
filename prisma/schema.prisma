@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  title     String
+  prompt    String?
+  createdAt DateTime @default(now())
+
+  propositions Proposition[]
+  statements   Statement[]
+  participants Participant[]
+}
+
+model Proposition {
+  id                   String   @id @default(uuid())
+  sessionId            String
+  jaText               String
+  enText               String?
+  backTranslatedJa     String?
+  translationDiffScore Float?
+  statusEditApproved   Boolean  @default(false)
+  statusApsApproved    Boolean  @default(false)
+
+  session   Session  @relation(fields: [sessionId], references: [id])
+  statements Statement[]
+}
+
+model Statement {
+  id                 String   @id @default(uuid())
+  sessionId          String
+  propositionId      String
+  textJa             String
+  selectedForVoting  Boolean  @default(false)
+
+  session     Session     @relation(fields: [sessionId], references: [id])
+  proposition Proposition @relation(fields: [propositionId], references: [id])
+  votes       Vote[]
+
+  @@unique([sessionId, propositionId])
+}
+
+model Participant {
+  id        String   @id @default(uuid())
+  sessionId String
+
+  session Session @relation(fields: [sessionId], references: [id])
+  votes   Vote[]
+}
+
+model Vote {
+  participantId String
+  statementId   String
+  vote          Int
+  createdAt     DateTime @default(now())
+
+  participant Participant @relation(fields: [participantId], references: [id])
+  statement   Statement   @relation(fields: [statementId], references: [id])
+
+  @@id([participantId, statementId])
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  title     String
+  prompt    String
+  createdAt DateTime @default(now())
+
+  stories      Story[]
+  propositions Proposition[]
+  statements   Statement[]
+}
+
+model Story {
+  id                     String   @id @default(uuid())
+  sessionId              String
+  session                Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sf_story_ja            String
+  policy_story_ja        String
+  status_story_approved  Boolean  @default(false)
+  image_url              String?  @db.Text
+  status_image_generated Boolean  @default(false)
+}
+
+model Proposition {
+  id                   String   @id @default(uuid())
+  sessionId            String
+  session              Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  ja_text              String   @db.Text
+  en_text              String?  @db.Text
+  back_translated_ja   String?  @db.Text
+  translation_diff_score Float? 
+  status_edit_approved Boolean  @default(false)
+  status_aps_approved  Boolean  @default(false)
+  statements           Statement[]
+}
+
+model Statement {
+  id                 String       @id @default(uuid())
+  sessionId          String
+  propositionId      String
+  session            Session      @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  proposition        Proposition  @relation(fields: [propositionId], references: [id], onDelete: Cascade)
+  text_ja            String       @db.Text
+  text_en            String?      @db.Text
+  selected_for_voting Boolean     @default(true)
+
+  @@index([sessionId])
+  @@index([propositionId])
+}
+
