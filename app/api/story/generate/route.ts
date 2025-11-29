@@ -19,6 +19,12 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  if (!session.prompt) {
+    return new Response(JSON.stringify({ error: "Session prompt is required" }), {
+      status: 400
+    });
+  }
+
   const systemPrompt =
     "あなたはSFプロトタイピングと公共政策に詳しいストーリーテラーです。" +
     "ユーザーのプロンプトから、(1) 未来の状況を描いた日本語のストーリー(sf_story_ja) と " +

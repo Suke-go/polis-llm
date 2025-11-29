@@ -96,16 +96,42 @@ DATABASE_URL=postgresql://...
 
 ## Vercel での設定
 
-1. Vercel ダッシュボードの「Settings」→「Environment Variables」に移動
-2. 各環境変数を追加（Production、Preview、Development で個別に設定可能）
-3. `GOOGLE_SERVICE_ACCOUNT_JSON` には、JSON ファイルの内容を**1行の文字列**として設定
-   - `env-design-54418957a0cd.json` ファイルを開き、全体をコピー
-   - 改行は `\n` として既にエスケープされているので、そのまま貼り付け
+### JSONファイルを環境変数に変換する方法
+
+#### 方法1: ヘルパースクリプトを使用（推奨）
+
+プロジェクトに含まれているヘルパースクリプトを使用すると、JSONファイルを簡単に1行の文字列に変換できます：
+
+```bash
+# JSONファイルを1行の文字列に変換
+node scripts/json-to-env.js env-design-54418957a0cd.json
+```
+
+スクリプトが出力した文字列をコピーして、Vercelの環境変数に設定します。
+
+#### 方法2: 手動で設定
+
+1. `env-design-54418957a0cd.json` ファイルを開き、全体をコピー
+2. JSONを1行の文字列に変換（改行は `\n` としてエスケープ）
+3. Vercelの環境変数に貼り付け
+
+### Vercelダッシュボードでの設定手順
+
+1. [Vercel Dashboard](https://vercel.com/dashboard) にログイン
+2. プロジェクトを選択
+3. 「Settings」タブ → 「Environment Variables」を選択
+4. 「Add New」ボタンをクリック
+5. 以下の情報を入力：
+   - **Key**: `GOOGLE_SERVICE_ACCOUNT_JSON`
+   - **Value**: （上記の方法で取得した1行のJSON文字列を貼り付け）
+   - **Environment**: Production、Preview、Development から選択
+6. 「Save」をクリック
 
 **重要**: 
 - サービスアカウントキーの JSON ファイルは機密情報です。Git にコミットしないでください。
 - `.gitignore` に `*-*.json` と `env-design-*.json` パターンが追加されています。
 - Vercel の環境変数は暗号化されて保存されます。
+- 環境変数を追加・変更した後は、新しいデプロイが必要です。
 
 詳細なデプロイ手順は [docs/VERCEL_DEPLOYMENT.md](docs/VERCEL_DEPLOYMENT.md) を参照してください。
 

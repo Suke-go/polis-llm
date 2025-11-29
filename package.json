@@ -10,7 +10,8 @@
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "seed:flow2": "tsx prisma/seed-flow2.ts"
+    "seed:flow2": "tsx prisma/seed-flow2.ts",
+    "json-to-env": "node scripts/json-to-env.js"
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",

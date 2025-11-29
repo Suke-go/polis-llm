@@ -64,11 +64,42 @@ GOOGLE_API_KEY=your_google_api_key_here
 
 #### サービスアカウントキーの設定方法
 
+##### 方法1: ヘルパースクリプトを使用（推奨）
+
+プロジェクトに含まれているヘルパースクリプトを使用すると、JSONファイルを簡単に1行の文字列に変換できます：
+
+```bash
+# JSONファイルを1行の文字列に変換
+node scripts/json-to-env.js env-design-54418957a0cd.json
+```
+
+スクリプトが出力した文字列をコピーして、Vercelの環境変数に設定します。
+
+##### 方法2: 手動で設定
+
 1. ローカルの `env-design-54418957a0cd.json` ファイルを開く
 2. ファイル全体をコピー
 3. Vercel の環境変数 `GOOGLE_SERVICE_ACCOUNT_JSON` に貼り付け
    - **重要**: JSON 文字列全体を1行で設定する必要があります
    - 改行は `\n` としてエスケープされます（既にエスケープ済みの場合はそのまま）
+
+##### Vercelダッシュボードでの設定手順
+
+1. [Vercel Dashboard](https://vercel.com/dashboard) にログイン
+2. プロジェクトを選択
+3. 「Settings」タブをクリック
+4. 左メニューから「Environment Variables」を選択
+5. 「Add New」ボタンをクリック
+6. 以下の情報を入力：
+   - **Key**: `GOOGLE_SERVICE_ACCOUNT_JSON`
+   - **Value**: （上記の方法で取得した1行のJSON文字列を貼り付け）
+   - **Environment**: Production、Preview、Development から選択（すべてにチェックを入れることも可能）
+7. 「Save」をクリック
+
+**注意**: 
+- 環境変数を追加・変更した後は、新しいデプロイが必要です
+- 既存のデプロイには自動的に反映されません
+- 必要に応じて「Redeploy」を実行してください
 
 ### 3. データベースマイグレーションの実行
 
